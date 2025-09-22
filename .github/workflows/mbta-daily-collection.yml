@@ -25,4 +25,3 @@ jobs:
       - name: Run MBTA collector
         run: |
           python mbta_collector_github.py
-
