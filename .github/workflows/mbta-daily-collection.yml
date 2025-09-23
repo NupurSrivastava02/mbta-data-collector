@@ -3,7 +3,7 @@ name: MBTA Data Collector
 on:
   schedule:
     - cron: "*/15 * * * *"    # every 15 minutes (UTC)
-  workflow_dispatch:           # allow manual runs from the Actions tab
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -49,6 +49,11 @@ jobs:
           echo "outdir=$OUT" >> "$GITHUB_OUTPUT"
           echo "date=$DATE"  >> "$GITHUB_OUTPUT"
 
+      - name: Heartbeat
+        run: |
+          echo "Triggered_by=${{ github.event_name }}"
+          date -u +"UTC now: %Y-%m-%d %H:%M:%S"
+
       - name: Run collector
         run: |
           python mbta_collector_github.py --output "${{ steps.stamp.outputs.outdir }}"
@@ -56,16 +61,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mbta-data-${{ steps.stamp.outputs.date }}   # no slashes in name
+          name: mbta-data-${{ steps.stamp.outputs.date }}
           path: ${{ steps.stamp.outputs.outdir }}
           retention-days: 7
-
-      # --- OPTIONAL: commit data back into repo ---
-      # - name: Commit results back to repo
-      #   if: ${{ success() }}
-      #   run: |
-      #     git config user.name  "github-actions[bot]"
-      #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      #     git add ${{ steps.stamp.outputs.outdir }}
-      #     git commit -m "Add MBTA data for ${{ steps.stamp.outputs.date }}" || echo "No changes to commit"
-      #     git push
