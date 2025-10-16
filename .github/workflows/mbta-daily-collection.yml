@@ -63,4 +63,4 @@ jobs:
         with:
           name: mbta-data-${{ steps.stamp.outputs.date }}
           path: ${{ steps.stamp.outputs.outdir }}
-          retention-days: 7
+          retention-days: 90
